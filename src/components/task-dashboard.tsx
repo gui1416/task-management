@@ -55,9 +55,21 @@ export function TaskDashboard() {
   setIsFormOpen(false)
  }
 
- const handleUpdateTask = (updatedTask: Task) => {
-  setTasks((prev) => prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)))
-  addNotification(`Task updated: ${updatedTask.title}`)
+ const handleUpdateTask = (updatedTask: Task | Omit<Task, "id" | "createdAt">) => {
+  let fullTask: Task
+  if ('id' in updatedTask && 'createdAt' in updatedTask) {
+   fullTask = updatedTask as Task
+  } else if (editingTask) {
+   fullTask = {
+    ...editingTask,
+    ...updatedTask,
+   }
+  } else {
+   // fallback: shouldn't happen
+   return
+  }
+  setTasks((prev) => prev.map((task) => (task.id === fullTask.id ? fullTask : task)))
+  addNotification(`Task updated: ${fullTask.title}`)
   setEditingTask(null)
   setIsFormOpen(false)
  }
